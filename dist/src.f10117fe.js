@@ -117,19 +117,122 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"src/game.ts":[function(require,module,exports) {
+})({"src/Board.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DeadZone = exports.Board = exports.Cell = void 0;
+var Cell = /** @class */function () {
+  function Cell(position, piece) {
+    this.position = position;
+    this.piece = piece;
+    this.isActive = false;
+    this._element = document.createElement('DIV');
+    this._element.classList.add('cell');
+  }
+  Cell.prototype.put = function (piece) {
+    this.piece = piece;
+  };
+  Cell.prototype.getPiece = function () {
+    return this.piece;
+  };
+  Cell.prototype.active = function () {
+    this.isActive = true;
+  };
+  Cell.prototype.deactivate = function () {
+    this.isActive = false;
+  };
+  Cell.prototype.render = function () {
+    if (this.isActive) {
+      this._element.classList.add('active');
+    } else {
+      this._element.classList.remove('active');
+    }
+    this._element.innerHTML = this.piece ? this.piece.render() : '';
+  };
+  return Cell;
+}();
+exports.Cell = Cell;
+var Board = /** @class */function () {
+  function Board() {
+    this.cells = [];
+    this._element = document.createElement('DIV');
+    this._element.className = 'board';
+    for (var row = 0; row < 4; row++) {
+      var rowEl = document.createElement('DIV');
+      rowEl.className = 'row';
+      this._element.appendChild(rowEl);
+      for (var col = 0; col < 3; col++) {
+        var cell = new Cell({
+          row: row,
+          col: col
+        }, null);
+        this.cells.push(cell);
+        rowEl.appendChild(cell._element);
+      }
+    }
+  }
+  Board.prototype.render = function () {
+    this.cells.forEach(function (v) {
+      return v.render();
+    });
+  };
+  return Board;
+}();
+exports.Board = Board;
+var DeadZone = /** @class */function () {
+  function DeadZone(type) {
+    var _a, _b;
+    this.type = type;
+    this.cells = [];
+    this.deadzoneEl = (_a = document.getElementById("".concat(this.type, "_deadzone"))) === null || _a === void 0 ? void 0 : _a.querySelector('.card-body');
+    for (var col = 0; col < 4; col++) {
+      var cell = new Cell({
+        col: col,
+        row: 0
+      }, null);
+      this.cells.push(cell);
+      (_b = this.deadzoneEl) === null || _b === void 0 ? void 0 : _b.appendChild(cell._element);
+    }
+  }
+  DeadZone.prototype.put = function (piece) {
+    var emptyCell = this.cells.find(function (v) {
+      return v.getPiece() == null;
+    });
+    emptyCell === null || emptyCell === void 0 ? void 0 : emptyCell.put(piece);
+    emptyCell === null || emptyCell === void 0 ? void 0 : emptyCell.render();
+  };
+  DeadZone.prototype.render = function () {
+    this.cells.forEach(function (v) {
+      return v.render();
+    });
+  };
+  return DeadZone;
+}();
+exports.DeadZone = DeadZone;
+},{}],"src/Game.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Game = void 0;
+var Board_1 = require("./Board");
 var Game = /** @class */function () {
-  function Game() {}
+  function Game() {
+    this.board = new Board_1.Board();
+    this.upperDeadZone = new Board_1.DeadZone('upper');
+    this.lowerDeadZone = new Board_1.DeadZone('lower');
+    var boardContainer = document.querySelector('.board-container');
+    boardContainer.firstChild.remove();
+    boardContainer.appendChild(this.board._element);
+  }
   return Game;
 }();
 exports.Game = Game;
-},{}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"./Board":"src/Board.ts"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 function getBundleURLCached() {
   if (!bundleURL) {
@@ -196,11 +299,11 @@ module.hot.accept(reloadCSS);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var game_1 = require("./game");
+var Game_1 = require("./Game");
 require("bootstrap/dist/css/bootstrap.css");
 require("./styles/style.css");
-new game_1.Game();
-},{"./game":"src/game.ts","bootstrap/dist/css/bootstrap.css":"node_modules/bootstrap/dist/css/bootstrap.css","./styles/style.css":"src/styles/style.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+new Game_1.Game();
+},{"./Game":"src/Game.ts","bootstrap/dist/css/bootstrap.css":"node_modules/bootstrap/dist/css/bootstrap.css","./styles/style.css":"src/styles/style.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -225,7 +328,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "9757" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "2637" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
