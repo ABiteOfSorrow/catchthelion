@@ -10889,6 +10889,7 @@ textarea.form-control-lg {
     width: 100px;
     height: 100px;
     flex: 0 100px;
+    padding: 0px;
     border: 1px dashed black;
     text-align: center;
     line-height: 96px;

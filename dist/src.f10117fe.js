@@ -156,22 +156,36 @@ var Cell = /** @class */function () {
 }();
 exports.Cell = Cell;
 var Board = /** @class */function () {
-  function Board() {
+  function Board(upperPlayer, lowerPlayer) {
     this.cells = [];
     this._element = document.createElement('DIV');
     this._element.className = 'board';
-    for (var row = 0; row < 4; row++) {
+    var _loop_1 = function _loop_1(row) {
       var rowEl = document.createElement('DIV');
       rowEl.className = 'row';
-      this._element.appendChild(rowEl);
-      for (var col = 0; col < 3; col++) {
+      this_1._element.appendChild(rowEl);
+      var _loop_2 = function _loop_2(col) {
+        var piece = upperPlayer.getPieces().find(function (_a) {
+          var currentPosition = _a.currentPosition;
+          return currentPosition.col === col && currentPosition.row === row;
+        }) || lowerPlayer.getPieces().find(function (_a) {
+          var currentPosition = _a.currentPosition;
+          return currentPosition.col === col && currentPosition.row === row;
+        });
         var cell = new Cell({
           row: row,
           col: col
-        }, null);
-        this.cells.push(cell);
+        }, piece);
+        this_1.cells.push(cell);
         rowEl.appendChild(cell._element);
+      };
+      for (var col = 0; col < 3; col++) {
+        _loop_2(col);
       }
+    };
+    var this_1 = this;
+    for (var row = 0; row < 4; row++) {
+      _loop_1(row);
     }
   }
   Board.prototype.render = function () {
@@ -212,7 +226,190 @@ var DeadZone = /** @class */function () {
   return DeadZone;
 }();
 exports.DeadZone = DeadZone;
-},{}],"src/Game.ts":[function(require,module,exports) {
+},{}],"src/images/lion.png":[function(require,module,exports) {
+module.exports = "/lion.0a55027b.png";
+},{}],"src/images/chicken.png":[function(require,module,exports) {
+module.exports = "/chicken.3d0d4a2d.png";
+},{}],"src/images/giraff.png":[function(require,module,exports) {
+module.exports = "/giraff.83fff16e.png";
+},{}],"src/images/elophant.png":[function(require,module,exports) {
+module.exports = "/elophant.66e48f21.png";
+},{}],"src/Piece.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
+    return _extendStatics(d, b);
+  };
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+    _extendStatics(d, b);
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Chick = exports.Giraff = exports.Elephant = exports.Lion = exports.MoveResult = void 0;
+var Player_1 = require("./Player");
+var lion_png_1 = __importDefault(require("./images/lion.png"));
+var chicken_png_1 = __importDefault(require("./images/chicken.png"));
+var giraff_png_1 = __importDefault(require("./images/giraff.png"));
+var elophant_png_1 = __importDefault(require("./images/elophant.png"));
+var MoveResult = /** @class */function () {
+  function MoveResult(killedPiece) {
+    this.killedPiece = killedPiece;
+  }
+  MoveResult.prototype.getKilled = function () {
+    return this.killedPiece;
+  };
+  return MoveResult;
+}();
+exports.MoveResult = MoveResult;
+var DefaultPiece = /** @class */function () {
+  function DefaultPiece(ownerType, currentPosition) {
+    this.ownerType = ownerType;
+    this.currentPosition = currentPosition;
+  }
+  DefaultPiece.prototype.move = function (from, to) {
+    if (!this.canMove(to.position)) {
+      throw new Error('can no move!');
+    }
+    var moveResult = new MoveResult(to.getPiece() != null ? to.getPiece() : null);
+    to.put(this);
+    from.put(null);
+    this.currentPosition = to.position;
+    return moveResult;
+  };
+  return DefaultPiece;
+}();
+var Lion = /** @class */function (_super) {
+  __extends(Lion, _super);
+  function Lion() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+  Lion.prototype.canMove = function (pos) {
+    var canMove = pos.row === this.currentPosition.row + 1 && pos.col === this.currentPosition.col || pos.row === this.currentPosition.row - 1 && pos.col === this.currentPosition.col || pos.col === this.currentPosition.col + 1 && pos.row === this.currentPosition.row || pos.col === this.currentPosition.col - 1 && pos.row === this.currentPosition.row || pos.row === this.currentPosition.row + 1 && pos.col === this.currentPosition.col + 1 || pos.row === this.currentPosition.row + 1 && pos.col === this.currentPosition.col - 1 || pos.row === this.currentPosition.row - 1 && pos.col === this.currentPosition.col + 1 || pos.row === this.currentPosition.row - 1 && pos.col === this.currentPosition.col - 1;
+    return canMove;
+  };
+  Lion.prototype.render = function () {
+    return "<img class=\"piece ".concat(this.ownerType, "\" src=\"").concat(lion_png_1.default, "\" width=\"90%\" height=\"90%\"/>");
+  };
+  return Lion;
+}(DefaultPiece);
+exports.Lion = Lion;
+var Elephant = /** @class */function (_super) {
+  __extends(Elephant, _super);
+  function Elephant() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+  Elephant.prototype.canMove = function (pos) {
+    return pos.row === this.currentPosition.row + 1 && pos.col === this.currentPosition.col + 1 || pos.row === this.currentPosition.row + 1 && pos.col === this.currentPosition.col - 1 || pos.row === this.currentPosition.row - 1 && pos.col === this.currentPosition.col + 1 || pos.row === this.currentPosition.row - 1 && pos.col === this.currentPosition.col - 1;
+  };
+  Elephant.prototype.render = function () {
+    return "<img class=\"piece ".concat(this.ownerType, "\" src=\"").concat(elophant_png_1.default, "\" width=\"90%\" height=\"90%\"/>");
+  };
+  return Elephant;
+}(DefaultPiece);
+exports.Elephant = Elephant;
+var Giraff = /** @class */function (_super) {
+  __extends(Giraff, _super);
+  function Giraff() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+  Giraff.prototype.canMove = function (pos) {
+    return pos.row === this.currentPosition.row + 1 && pos.col === this.currentPosition.col || pos.row === this.currentPosition.row - 1 && pos.col === this.currentPosition.col || pos.col === this.currentPosition.col + 1 && pos.row === this.currentPosition.row || pos.col === this.currentPosition.col - 1 && pos.row === this.currentPosition.row;
+  };
+  Giraff.prototype.render = function () {
+    return "<img class=\"piece ".concat(this.ownerType, "\" src=\"").concat(giraff_png_1.default, "\" width=\"90%\" height=\"90%\"/>");
+  };
+  return Giraff;
+}(DefaultPiece);
+exports.Giraff = Giraff;
+var Chick = /** @class */function (_super) {
+  __extends(Chick, _super);
+  function Chick() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+  Chick.prototype.canMove = function (pos) {
+    return this.currentPosition.row + (this.ownerType == Player_1.PlayerType.UPPER ? +1 : -1) === pos.row;
+  };
+  Chick.prototype.render = function () {
+    return "<img class=\"piece ".concat(this.ownerType, "\" src=\"").concat(chicken_png_1.default, "\" width=\"90%\" height=\"90%\"/>");
+  };
+  return Chick;
+}(DefaultPiece);
+exports.Chick = Chick;
+},{"./Player":"src/Player.ts","./images/lion.png":"src/images/lion.png","./images/chicken.png":"src/images/chicken.png","./images/giraff.png":"src/images/giraff.png","./images/elophant.png":"src/images/elophant.png"}],"src/Player.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Player = exports.PlayerType = void 0;
+var Piece_1 = require("./Piece");
+var PlayerType;
+(function (PlayerType) {
+  PlayerType["UPPER"] = "UPPER";
+  PlayerType["LOWER"] = "LOWER";
+})(PlayerType = exports.PlayerType || (exports.PlayerType = {}));
+var Player = /** @class */function () {
+  function Player(type) {
+    this.type = type;
+    if (type == PlayerType.UPPER) {
+      this.pieces = [new Piece_1.Giraff(PlayerType.UPPER, {
+        row: 0,
+        col: 0
+      }), new Piece_1.Lion(PlayerType.UPPER, {
+        row: 0,
+        col: 1
+      }), new Piece_1.Elephant(PlayerType.UPPER, {
+        row: 0,
+        col: 2
+      }), new Piece_1.Chick(PlayerType.UPPER, {
+        row: 1,
+        col: 1
+      })];
+    } else {
+      this.pieces = [new Piece_1.Elephant(PlayerType.UPPER, {
+        row: 3,
+        col: 0
+      }), new Piece_1.Lion(PlayerType.UPPER, {
+        row: 3,
+        col: 1
+      }), new Piece_1.Giraff(PlayerType.UPPER, {
+        row: 3,
+        col: 2
+      }), new Piece_1.Chick(PlayerType.UPPER, {
+        row: 2,
+        col: 1
+      })];
+    }
+  }
+  Player.prototype.getPieces = function () {
+    return this.pieces;
+  };
+  return Player;
+}();
+exports.Player = Player;
+},{"./Piece":"src/Piece.ts"}],"src/Game.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -220,19 +417,45 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Game = void 0;
 var Board_1 = require("./Board");
+var Player_1 = require("./Player");
+require("./Piece");
 var Game = /** @class */function () {
   function Game() {
-    this.board = new Board_1.Board();
+    this.turn = 0;
+    this.gameInfoEl = document.querySelector('.alert');
+    this.state = 'STARTED';
+    this.upperPlayer = new Player_1.Player(Player_1.PlayerType.UPPER);
+    this.lowerPlayer = new Player_1.Player(Player_1.PlayerType.LOWER);
+    this.board = new Board_1.Board(this.upperPlayer, this.lowerPlayer);
     this.upperDeadZone = new Board_1.DeadZone('upper');
     this.lowerDeadZone = new Board_1.DeadZone('lower');
     var boardContainer = document.querySelector('.board-container');
     boardContainer.firstChild.remove();
     boardContainer.appendChild(this.board._element);
+    this.currentPlayer = this.upperPlayer;
+    this.board.render();
+    this.renderInfo();
   }
+  Game.prototype.renderInfo = function (extraMessage) {
+    this.gameInfoEl.innerHTML = "#".concat(this.turn, " turn ").concat(this.currentPlayer.type, "'s turn ").concat(extraMessage ? '| ' + extraMessage : '');
+  };
+  Game.prototype.changeTurn = function () {
+    var _a;
+    (_a = this.selectedCell) === null || _a === void 0 ? void 0 : _a.deactivate();
+    this.selectedCell = null;
+    if (this.state === 'END') {
+      this.renderInfo('END!');
+    } else {
+      this.turn += 1;
+      this.currentPlayer = this.currentPlayer === this.lowerPlayer ? this.upperPlayer : this.lowerPlayer;
+      this.renderInfo();
+    }
+    this.board.render();
+  };
   return Game;
 }();
 exports.Game = Game;
-},{"./Board":"src/Board.ts"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"./Board":"src/Board.ts","./Player":"src/Player.ts","./Piece":"src/Piece.ts"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 function getBundleURLCached() {
   if (!bundleURL) {
@@ -328,7 +551,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "2637" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "7018" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
