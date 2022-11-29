@@ -6,7 +6,7 @@ import giraffImage from './images/giraff.png';
 import elophantImage from './images/elophant.png';
 
 export class MoveResult {
-    constructor(private killedPiece: Piece | null){}
+    constructor(private killedPiece: Piece | null | undefined){}
     getKilled() {
         return this.killedPiece
     }

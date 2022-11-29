@@ -10917,5 +10917,32 @@ textarea.form-control-lg {
   .piece.UPPER {
     transform: rotate(180deg);
   }
+  .info_rules {
+    margin-top: 10px;
+    height: 200px;
+    flex: 0 100px;
+    padding: 0px;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    text-align: center;
+  }
+  .info_rules_mission {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 300px;
+    height: 80px;
+    flex: 100px;
+    padding: 0px;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    text-align: center;
+  }
+  .rules{
+    font-size: 20px;
+    font-weight: bold;
+  }
+
 
 /*# sourceMappingURL=/src.f10117fe.css.map */

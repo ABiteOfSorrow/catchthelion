@@ -159,6 +159,8 @@ var Board = /** @class */function () {
   function Board(upperPlayer, lowerPlayer) {
     this.cells = [];
     this._element = document.createElement('DIV');
+    //map과 weakmap의 첫 번째 차이는 weakmap의 key가 반드시 객체(obj)여야 한다는 점이다 원시값은 위크맵의 key가 될 수 없다
+    this.map = new WeakMap();
     this._element.className = 'board';
     var _loop_1 = function _loop_1(row) {
       var rowEl = document.createElement('DIV');
@@ -176,6 +178,7 @@ var Board = /** @class */function () {
           row: row,
           col: col
         }, piece);
+        this_1.map.set(cell._element, cell);
         this_1.cells.push(cell);
         rowEl.appendChild(cell._element);
       };
@@ -388,16 +391,16 @@ var Player = /** @class */function () {
         col: 1
       })];
     } else {
-      this.pieces = [new Piece_1.Elephant(PlayerType.UPPER, {
+      this.pieces = [new Piece_1.Elephant(PlayerType.LOWER, {
         row: 3,
         col: 0
-      }), new Piece_1.Lion(PlayerType.UPPER, {
+      }), new Piece_1.Lion(PlayerType.LOWER, {
         row: 3,
         col: 1
-      }), new Piece_1.Giraff(PlayerType.UPPER, {
+      }), new Piece_1.Giraff(PlayerType.LOWER, {
         row: 3,
         col: 2
-      }), new Piece_1.Chick(PlayerType.UPPER, {
+      }), new Piece_1.Chick(PlayerType.LOWER, {
         row: 2,
         col: 1
       })];
@@ -419,8 +422,10 @@ exports.Game = void 0;
 var Board_1 = require("./Board");
 var Player_1 = require("./Player");
 require("./Piece");
+var Piece_1 = require("./Piece");
 var Game = /** @class */function () {
   function Game() {
+    var _this = this;
     this.turn = 0;
     this.gameInfoEl = document.querySelector('.alert');
     this.state = 'STARTED';
@@ -435,7 +440,72 @@ var Game = /** @class */function () {
     this.currentPlayer = this.upperPlayer;
     this.board.render();
     this.renderInfo();
+    this.board._element.addEventListener('click', function (e) {
+      if (_this.state === 'END') {
+        return false;
+      }
+      /* instanceof 연산자를 사용하면 객체가 특정 클래스에 속하는지 아닌지를 확인할 수 있습니다.
+          instanceof는 상속 관계도 확인해줍니다.
+          ex: obj instanceof Class
+          obj가 Class에 속하거나 Class를 상속받는 클래스에 속하면 true가 반환됩니다.
+      */
+      if (e.target instanceof HTMLElement) {
+        var cellEl = void 0;
+        if (e.target.classList.contains('cell')) {
+          cellEl = e.target;
+        } else if (e.target.classList.contains('piece')) {
+          cellEl = e.target.parentElement;
+        } else {
+          return false;
+        }
+        var cell = _this.board.map.get(cellEl);
+        if (_this.isCurrentUserPiece(cell)) {
+          _this.select(cell);
+          return false;
+        }
+        if (_this, _this.selectedCell) {
+          _this.move(cell);
+          _this.changeTurn();
+        }
+      }
+    });
   }
+  Game.prototype.isCurrentUserPiece = function (cell) {
+    var _a;
+    return cell != null && cell.getPiece() !== null && ((_a = cell.getPiece()) === null || _a === void 0 ? void 0 : _a.ownerType) === this.currentPlayer.type;
+  };
+  Game.prototype.select = function (cell) {
+    var _a;
+    if (cell.getPiece() == null) {
+      return;
+    }
+    if (((_a = cell.getPiece()) === null || _a === void 0 ? void 0 : _a.ownerType) !== this.currentPlayer.type) {
+      return;
+    }
+    if (this.selectedCell) {
+      this.selectedCell.deactivate();
+      this.selectedCell.render();
+    }
+    this.selectedCell = cell;
+    cell.active();
+    cell.render();
+  };
+  Game.prototype.move = function (cell) {
+    var _a, _b, _c;
+    (_a = this.selectedCell) === null || _a === void 0 ? void 0 : _a.deactivate();
+    var killed = (_c = (_b = this.selectedCell) === null || _b === void 0 ? void 0 : _b.getPiece()) === null || _c === void 0 ? void 0 : _c.move(this.selectedCell, cell).getKilled();
+    this.selectedCell = cell;
+    if (killed) {
+      if (killed.ownerType === Player_1.PlayerType.UPPER) {
+        this.lowerDeadZone.put(killed);
+      } else {
+        this.upperDeadZone.put(killed);
+      }
+      if (killed instanceof Piece_1.Lion) {
+        this.state = 'END';
+      }
+    }
+  };
   Game.prototype.renderInfo = function (extraMessage) {
     this.gameInfoEl.innerHTML = "#".concat(this.turn, " turn ").concat(this.currentPlayer.type, "'s turn ").concat(extraMessage ? '| ' + extraMessage : '');
   };
@@ -444,7 +514,7 @@ var Game = /** @class */function () {
     (_a = this.selectedCell) === null || _a === void 0 ? void 0 : _a.deactivate();
     this.selectedCell = null;
     if (this.state === 'END') {
-      this.renderInfo('END!');
+      this.renderInfo("END! ".concat(this.currentPlayer.type, " is win"));
     } else {
       this.turn += 1;
       this.currentPlayer = this.currentPlayer === this.lowerPlayer ? this.upperPlayer : this.lowerPlayer;
@@ -551,7 +621,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "7018" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "5173" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

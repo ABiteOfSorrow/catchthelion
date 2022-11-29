@@ -47,6 +47,8 @@ export class Cell {
 export class Board {
     cells: Cell[] = [];
     _element: HTMLElement = document.createElement('DIV');
+    //map과 weakmap의 첫 번째 차이는 weakmap의 key가 반드시 객체(obj)여야 한다는 점이다 원시값은 위크맵의 key가 될 수 없다
+    map: WeakMap<HTMLElement, Cell> = new WeakMap()
 
     constructor(upperPlayer: Player, lowerPlayer: Player) {
         this._element.className = 'board';
@@ -64,6 +66,7 @@ export class Board {
                         return currentPosition.col === col && currentPosition.row === row
                     }) 
                 const cell = new Cell({ row, col }, piece);
+                this.map.set(cell._element, cell);
                 this.cells.push(cell);
                 rowEl.appendChild(cell._element);
             }           

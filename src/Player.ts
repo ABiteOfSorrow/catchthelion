@@ -22,10 +22,10 @@ export class Player {
             ]
         } else {
             this.pieces = [
-                new Elephant(PlayerType.UPPER, { row: 3, col: 0}),
-                new Lion(PlayerType.UPPER, {row: 3, col: 1}),
-                new Giraff(PlayerType.UPPER, {row: 3, col: 2}),
-                new Chick(PlayerType.UPPER, {row: 2, col: 1})
+                new Elephant(PlayerType.LOWER, { row: 3, col: 0}),
+                new Lion(PlayerType.LOWER, {row: 3, col: 1}),
+                new Giraff(PlayerType.LOWER, {row: 3, col: 2}),
+                new Chick(PlayerType.LOWER, {row: 2, col: 1})
             ]
         }
     }
